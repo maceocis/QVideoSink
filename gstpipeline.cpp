@@ -54,7 +54,7 @@ int Gstpipeline::gstpipeline_init(Producer * frameProvider)
     /* Initialize GStreamer */
     gst_init (NULL,NULL);
 
-#if 0
+#if 1
     descr = g_strdup_printf ("v4l2src name=video_source device=/dev/v4l/by-path/platform-vvcam-video.0-video-index0 io-mode=dmabuf ! video/x-raw, width=3840,height=2160 ! tee name=t "
                             "t. ! queue max-size-buffers=1 leaky=downstream ! imxvideoconvert_g2d rotation=3 name=g2d ! video/x-raw, width=480, height=800 ! appsink name=app_sinkLcd max-buffers=1 drop=True ");
 #else
