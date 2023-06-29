@@ -25,7 +25,10 @@ class Rendyboi : public QQuickItem {
 
   private:
     Gstpipeline *m_pipeline;
-    uint8_t *m_buffer;
+    uint8_t *m_bytes;
+    GstMapInfo m_info;
+    GstSample *m_sample;
+    GstBuffer *m_buffer;
 };
 
 #endif

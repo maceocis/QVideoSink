@@ -11,11 +11,11 @@
 
 Rendyboi::Rendyboi() {
     setFlag(ItemHasContents, true);
-    m_buffer = new uint8_t[480*800*4];
+    m_sample = nullptr;
+    m_buffer = nullptr;
 }
 
 Rendyboi::~Rendyboi() {
-    delete m_buffer;
 }
 
 Gstpipeline *Rendyboi::pipeline() const {
@@ -29,13 +29,16 @@ void Rendyboi::setPipeline(Gstpipeline *pipeline) {
 }
 
 void Rendyboi::processSample() {
-    GstMapInfo info;
-    GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(pipeline()->appsink()));
-    GstBuffer *buffer = gst_sample_get_buffer(sample);
-    gst_buffer_map(buffer, &info, GST_MAP_READ);
-    memcpy(m_buffer, info.data, 480*800*4);
-    gst_sample_unref(sample);
-    gst_buffer_unmap(buffer, &info);
+    if (m_buffer != nullptr) {
+        gst_buffer_unmap(m_buffer, &m_info);
+    }
+    if (m_sample != nullptr) {
+        gst_sample_unref(m_sample);
+    }
+    m_sample = gst_app_sink_pull_sample(GST_APP_SINK(pipeline()->appsink()));
+    m_buffer = gst_sample_get_buffer(m_sample);
+    gst_buffer_map(m_buffer, &m_info, GST_MAP_READ);
+
     update();
 }
 
@@ -58,7 +61,7 @@ QSGNode *Rendyboi::updatePaintNode(QSGNode *oldNode,
     }
     node->setRect(boundingRect());
 
-    QImage image(m_buffer, 480, 800, QImage::Format_RGBX8888);
+    QImage image(m_info.data, 480, 800, QImage::Format_RGBX8888);
     QSGTexture *texture = window()->createTextureFromImage(image, QQuickWindow::TextureIsOpaque);
     node->setOwnsTexture(true);
     node->setTexture(texture);
