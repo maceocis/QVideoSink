@@ -3,17 +3,28 @@
 #include <QQmlContext>
 #include "producer.h"
 #include "gstpipeline.h"
+#include "rendyboi.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-
-    Producer * frameProvider = new Producer();
-    Gstpipeline gstpipe;
-    gstpipe.gstpipeline_init(frameProvider);
-
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("frameProvider", frameProvider);
+
+    std::string uri = "com.heine.components";
+    int majorVersion = 1;
+    int minorVersion = 0;
+
+    qmlRegisterType<Rendyboi>(
+        uri.c_str(),
+        majorVersion,
+        minorVersion,
+        "Rendyboi"
+    );
+
+    Gstpipeline gstpipe;
+    engine.rootContext()->setContextProperty("gstpipe", &gstpipe);
+    gstpipe.gstpipeline_init();
+
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {

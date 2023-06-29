@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = qvideosink_test
 
-QT += qml multimedia multimedia-private
+QT += qml multimedia multimedia-private quick
 
 CONFIG += c++11
 CONFIG += link_pkgconfig debug
@@ -14,9 +14,11 @@ PKGCONFIG = \
 
 HEADERS += producer.h \
     gstpipeline.h \
+    rendyboi.h \
     videoBuffer.h
 SOURCES += main.cpp producer.cpp \
     gstpipeline.cpp \
+    rendyboi.cpp \
     videoBuffer.cpp
 RESOURCES += qml.qrc
 

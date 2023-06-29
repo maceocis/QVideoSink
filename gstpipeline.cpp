@@ -1,4 +1,4 @@
-#include<QDebug>
+#include <QDebug>
 #include "gstpipeline.h"
 
 
@@ -12,44 +12,40 @@ Gstpipeline::~Gstpipeline()
 
 }
 
-int Gstpipeline::sendNewSample2QML(uchar *pData)
-{
-    m_pFrameProvider->start(pData);
-
-    return 0;
+GstAppSink *Gstpipeline::appsink() {
+    return (GstAppSink *)data.appsinkLcd;
 }
 
+void Gstpipeline::emitSampleReadySignal() {
+    emit sampleReady();
+}
 
-/* called when the appsink notifies us that there is a new buffer ready for
- * processing */
-GstFlowReturn Gstpipeline::newSampleCallbackLcd (GstAppSink *appsink, gpointer user_data)
-{
-    GstSample *sample;
-    GstBuffer *buffer;
-    GstMapInfo info;
+GstFlowReturn Gstpipeline::newSampleCallbackLcd(GstAppSink *appsink, gpointer user_data) {
+    // GstSample *sample;
+    // GstBuffer *buffer;
+    // GstMapInfo info;
 
-    /* get the sample from appsink */
-    sample = gst_app_sink_pull_sample(GST_APP_SINK (appsink));
-    buffer = gst_sample_get_buffer(sample);
+    // /* get the sample from appsink */
+    // sample = gst_app_sink_pull_sample(GST_APP_SINK (appsink));
+    // buffer = gst_sample_get_buffer(sample);
 
-    gst_buffer_map(buffer, &info, GST_MAP_READ);
+    // gst_buffer_map(buffer, &info, GST_MAP_READ);
 
-    ((Gstpipeline*) user_data)->sendNewSample2QML((uchar *)info.data);
+    ((Gstpipeline*) user_data)->emitSampleReadySignal();
 
-    gst_sample_unref(sample);
-    gst_buffer_unmap(buffer, &info);
+    // gst_sample_unref(sample);
+    // gst_buffer_unmap(buffer, &info);
 
     return GST_FLOW_OK;
 }
 
 
-int Gstpipeline::gstpipeline_init(Producer * frameProvider)
+int Gstpipeline::gstpipeline_init()
 {
+    qDebug() << "Gstpipeline::gstpipeline_init";
     GError *error = NULL;
     gchar *descr;
     GstStateChangeReturn ret;
-
-    m_pFrameProvider = frameProvider;
 
     /* Initialize GStreamer */
     gst_init (NULL,NULL);
@@ -80,13 +76,14 @@ int Gstpipeline::gstpipeline_init(Producer * frameProvider)
         gst_object_unref (data.pipeline);
         return 0;
     }
-
+    qDebug() << "Gstpipeline::gstpipeline_init finished";
     return 1;
 }
 
 int
 Gstpipeline::gstpipeline_deinit()
 {
+    qDebug() << "Gstpipeline::gstpipeline_deinit";
     gst_element_set_state (this->data.pipeline, GST_STATE_NULL);
     gst_object_unref (this->data.pipeline);
     gst_deinit ();

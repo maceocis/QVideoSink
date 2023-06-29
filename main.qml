@@ -1,21 +1,16 @@
 import QtQuick
 import QtQuick.Window
 import QtMultimedia
+import com.heine.components 1.0
 
 Window {
     width: 480
     height: 800
     visible: true
-    title: qsTr("Hello World")
 
-    //to be run after window object has been instantiated.
-    Component.onCompleted: {
-        frameProvider.videoSink = videoOutput.videoSink        
-    }
-
-    VideoOutput{
-        id: videoOutput
+    Rendyboi{
         anchors.fill: parent
+        pipeline: gstpipe
     }
 
 }

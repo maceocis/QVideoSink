@@ -28,13 +28,16 @@ public:
     CustomData data;
     //QQuickWindow *object;
 
-    int gstpipeline_init(Producer * frameProvider);
+    int gstpipeline_init();
     int gstpipeline_deinit();
     static GstFlowReturn newSampleCallbackLcd (GstAppSink *appsink, gpointer user_data);
-    int sendNewSample2QML(uchar *pData);
+    void emitSampleReadySignal();
 
-signals:    
+    GstAppSink *appsink();
+
+  signals:    
     void sendToQmlOneAiText(QString text);
+    void sampleReady();
 
 private:
     Producer * m_pFrameProvider;
