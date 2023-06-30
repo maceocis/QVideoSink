@@ -1,4 +1,6 @@
 #include <QDebug>
+#include <gst/gl/gstgl_enums.h>
+
 #include "gstpipeline.h"
 
 
@@ -66,6 +68,35 @@ int Gstpipeline::gstpipeline_init()
     }
 
     data.appsinkLcd = gst_bin_get_by_name (GST_BIN (data.pipeline), "app_sinkLcd");
+
+
+
+    GstAppSink *appsink = (GstAppSink *)data.appsinkLcd;
+    GstCaps *caps = gst_app_sink_get_caps(appsink);
+    if (!caps) {
+        caps = gst_caps_new_simple ("video/x-raw",
+            "format", G_TYPE_STRING, "RGBx",
+            "framerate", GST_TYPE_FRACTION, 30, 1,
+            "pixel-aspect-ratio", GST_TYPE_FRACTION, 80, 27,
+            "width", G_TYPE_INT, 480,
+            "height", G_TYPE_INT, 800,
+            NULL);
+    }
+
+    if (false) {
+        GstCapsFeatures *glMemory = gst_caps_features_new_single("memory:GLBuffer");
+        gst_caps_set_features_simple(caps, glMemory);
+
+        GValue target = G_VALUE_INIT;
+        g_value_init (&target, G_TYPE_INT);
+        g_value_set_int (&target, GST_GL_TEXTURE_TARGET_2D);
+        gst_caps_set_value (caps, "texture-target", &target);
+    }
+
+    gst_app_sink_set_caps(appsink, caps);
+
+
+
     g_object_set (G_OBJECT (data.appsinkLcd), "emit-signals", TRUE, "sync", FALSE, NULL);
     g_signal_connect (data.appsinkLcd, "new-sample", G_CALLBACK (newSampleCallbackLcd), this);
 

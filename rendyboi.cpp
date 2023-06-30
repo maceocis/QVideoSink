@@ -24,6 +24,7 @@ Gstpipeline *Rendyboi::pipeline() const {
 
 void Rendyboi::setPipeline(Gstpipeline *pipeline) {
     qDebug() << "Rendyboi::setPipeline " << pipeline;
+    qDebug() << gst_caps_to_string(gst_app_sink_get_caps(pipeline->appsink()));
     m_pipeline = pipeline;
     QObject::connect(m_pipeline, &Gstpipeline::sampleReady, this, &Rendyboi::processSample);
 }
@@ -35,7 +36,18 @@ void Rendyboi::processSample() {
     if (m_sample != nullptr) {
         gst_sample_unref(m_sample);
     }
+
     m_sample = gst_app_sink_pull_sample(GST_APP_SINK(pipeline()->appsink()));
+
+    if (false) {
+        GstCaps *caps = gst_sample_get_caps(m_sample);
+        if (!caps) {
+            qWarning() << "failed to extract caps from gst sample";
+        } else {
+            qDebug() << gst_caps_to_string(caps);
+        }
+    }
+
     m_buffer = gst_sample_get_buffer(m_sample);
     gst_buffer_map(m_buffer, &m_info, GST_MAP_READ);
 
